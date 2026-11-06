@@ -4,6 +4,7 @@ import { AuthContext } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode, allowedRole: string }) => {
@@ -28,7 +29,11 @@ function App() {
         </ProtectedRoute>
       } />
       
-      {/* We will add Admin Dashboard next */}
+      <Route path="/admin" element={
+        <ProtectedRoute allowedRole="ADMIN">
+          <AdminDashboard />
+        </ProtectedRoute>
+      } />
     </Routes>
   )
 }

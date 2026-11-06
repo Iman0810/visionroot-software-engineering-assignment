@@ -31,6 +31,13 @@ public class ServiceRequestController {
     public ResponseEntity<List<ServiceRequestDto>> getMyRequests() {
         return ResponseEntity.ok(service.getMyRequests());
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<ServiceRequestDto> updateRequest(
+            @PathVariable Long id, 
+            @Valid @RequestBody CreateServiceRequestDto dto
+    ) {
+        return ResponseEntity.ok(service.updateRequest(id, dto));
+    }
 
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ServiceRequestDto> cancelRequest(@PathVariable Long id) {

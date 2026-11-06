@@ -110,4 +110,21 @@ public class ServiceRequestService {
         return requestRepository.findAll()
                 .stream().map(this::mapToDto).collect(Collectors.toList());
     }
+
+        public ServiceRequestDto updateRequest(Long id, CreateServiceRequestDto dto) {
+        ServiceRequest request = requestRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Request not found"));
+
+        // Rule: A user may edit a request only while it is PENDING.
+        if (request.getStatus() != Status.PENDING) {
+            throw new BadRequestException("You can only edit requests that are PENDING");
+        }
+
+        request.setTitle(dto.getTitle());
+        request.setDescription(dto.getDescription());
+        request.setCategory(dto.getCategory());
+        request.setPriority(dto.getPriority());
+
+        return mapToDto(requestRepository.save(request));
+    }
 }
