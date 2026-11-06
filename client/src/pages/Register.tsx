@@ -5,14 +5,14 @@ import axiosClient from '../api/axiosClient';
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('USER');
+
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axiosClient.post('/auth/register', { email, password, role });
+            await axiosClient.post('/auth/register', { email, password});
             navigate('/login');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Email might be in use.');
@@ -27,9 +27,9 @@ const Register = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
-                        <input 
-                            type="email" 
-                            required 
+                        <input
+                            type="email"
+                            required
                             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -37,25 +37,15 @@ const Register = () => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Password</label>
-                        <input 
-                            type="password" 
-                            required 
+                        <input
+                            type="password"
+                            required
                             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Role</label>
-                        <select 
-                            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                        >
-                            <option value="USER">User</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
-                    </div>
+
                     <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">
                         Register
                     </button>
