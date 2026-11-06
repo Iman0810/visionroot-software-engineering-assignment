@@ -28,10 +28,10 @@ public class AuthenticationService {
         }
 
         var user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole() != null ? request.getRole() : lk.visionroot.assignment.entity.Role.USER) // Default to USER
-                .build();
+        .email(request.getEmail())
+        .password(passwordEncoder.encode(request.getPassword()))
+        .role(lk.visionroot.assignment.entity.Role.USER) // Force user role
+        .build();
                 
         repository.save(user);
         

@@ -20,7 +20,7 @@ public class ServiceRequestDto {
     private String category;
     private Priority priority;
     private Status status;
-    private String userEmail; 
+    private String userEmail;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
