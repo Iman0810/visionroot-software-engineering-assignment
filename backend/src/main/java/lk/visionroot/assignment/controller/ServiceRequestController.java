@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -47,8 +49,15 @@ public class ServiceRequestController {
 
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<ServiceRequestDto>> getAllRequestsAdmin() {
-        return ResponseEntity.ok(service.getAllRequestsAdmin());
+    public ResponseEntity<Page<ServiceRequestDto>> getAllRequestsAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            @RequestParam(defaultValue = "createdAt") String sortBy
+    ) {
+        return ResponseEntity.ok(service.getAllRequestsAdmin(page, size, search, status, priority, sortBy));
     }
 
     @PatchMapping("/{id}/status")

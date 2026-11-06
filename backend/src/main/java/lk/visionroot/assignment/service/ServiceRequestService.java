@@ -11,6 +11,12 @@ import lk.visionroot.assignment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import lk.visionroot.assignment.entity.Priority;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -126,5 +132,34 @@ public class ServiceRequestService {
         request.setPriority(dto.getPriority());
 
         return mapToDto(requestRepository.save(request));
+    }
+     public Page<ServiceRequestDto> getAllRequestsAdmin(
+            int page, int size, String search, String status, String priority, String sortBy
+    ) {
+        // 1. Setup Pagination and Sorting
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+
+        // 2. Setup Dynamic Filtering using JPA Specifications
+        Specification<ServiceRequest> spec = (root , query , cb)-> cb.conjunction();
+
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, cb) -> 
+                cb.or(
+                    cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                )
+            );
+        }
+
+        if (status != null && !status.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), Status.valueOf(status)));
+        }
+
+        if (priority != null && !priority.isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("priority"), Priority.valueOf(priority)));
+        }
+
+        // 3. Execute Query and Map to DTO
+        return requestRepository.findAll(spec, pageable).map(this::mapToDto);
     }
 }
