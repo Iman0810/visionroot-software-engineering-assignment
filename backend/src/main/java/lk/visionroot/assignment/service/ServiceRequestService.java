@@ -117,7 +117,7 @@ public class ServiceRequestService {
                 .stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
-        public ServiceRequestDto updateRequest(Long id, CreateServiceRequestDto dto) {
+    public ServiceRequestDto updateRequest(Long id, CreateServiceRequestDto dto) {
         ServiceRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Request not found"));
 
@@ -133,14 +133,15 @@ public class ServiceRequestService {
 
         return mapToDto(requestRepository.save(request));
     }
-     public Page<ServiceRequestDto> getAllRequestsAdmin(
-            int page, int size, String search, String status, String priority, String sortBy
-    ) {
-        // 1. Setup Pagination and Sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
 
-        // 2. Setup Dynamic Filtering using JPA Specifications
-        Specification<ServiceRequest> spec = (root , query , cb)-> cb.conjunction();
+    public Page<ServiceRequestDto> getAllRequestsAdmin(
+            int page, int size, String search, String status, String priority, String sortBy, String sortDir
+    ) {
+        // Setup Sorting (default to createdAt desc)
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<ServiceRequest> spec = (root, query, cb) -> cb.conjunction();
 
         if (search != null && !search.isEmpty()) {
             spec = spec.and((root, query, cb) -> 
@@ -159,7 +160,6 @@ public class ServiceRequestService {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("priority"), Priority.valueOf(priority)));
         }
 
-        // 3. Execute Query and Map to DTO
         return requestRepository.findAll(spec, pageable).map(this::mapToDto);
     }
 }

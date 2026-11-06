@@ -55,9 +55,10 @@ public class ServiceRequestController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority,
-            @RequestParam(defaultValue = "createdAt") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        return ResponseEntity.ok(service.getAllRequestsAdmin(page, size, search, status, priority, sortBy));
+        return ResponseEntity.ok(service.getAllRequestsAdmin(page, size, search, status, priority, sortBy, sortDir));
     }
 
     @PatchMapping("/{id}/status")
@@ -68,4 +69,5 @@ public class ServiceRequestController {
     ) {
         return ResponseEntity.ok(service.updateStatus(id, dto.getStatus()));
     }
+
 }
