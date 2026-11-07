@@ -23,4 +23,4 @@ jobs:
     - name: Build and Test with Maven
       run: |
         cd backend
-        mvn -B clean test
+        mvn clean test
