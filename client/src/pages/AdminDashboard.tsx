@@ -95,6 +95,7 @@ const AdminDashboard = () => {
 
     return (
         <Layout title="Admin Dashboard">
+            {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Requests</p>
@@ -110,6 +111,32 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
+            {/* Visual Chart */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 w-full max-w-3xl mx-auto">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 text-center">Request Status Breakdown</h3>
+                <div className="w-full h-4 flex rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                    {(() => {
+                        const pendingPct = (stats.pending / 5) * 100;
+                        const resolvedPct = (stats.resolved / 5) * 100;
+                        const otherPct = 100 - pendingPct - resolvedPct;
+                        
+                        return (
+                            <>
+                                <div className="bg-yellow-500 h-full transition-all duration-500" style={{ width: `${Math.max(pendingPct, 5)}%` }} title="Pending"></div>
+                                <div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${Math.max(resolvedPct, 5)}%` }} title="Resolved"></div>
+                                <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${Math.max(otherPct, 10)}%` }} title="In Progress / Cancelled"></div>
+                            </>
+                        );
+                    })()}
+                </div>
+                <div className="flex justify-center gap-6 mt-4 text-xs text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1"><span className="w-3 h-3 bg-yellow-500 rounded-sm"></span> Pending</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-3 bg-green-500 rounded-sm"></span> Resolved</div>
+                    <div className="flex items-center gap-1"><span className="w-3 h-3 bg-blue-500 rounded-sm"></span> In Progress/Other</div>
+                </div>
+            </div>
+
+            {/* tabs */}
             <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
                 <button className={`py-3 px-6 font-medium text-sm ${activeTab === 'requests' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} onClick={() => { setActiveTab('requests'); setPage(0); }}>Manage Requests</button>
                 <button className={`py-3 px-6 font-medium text-sm ${activeTab === 'users' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} onClick={() => setActiveTab('users')}>Manage Users</button>
@@ -145,8 +172,8 @@ const AdminDashboard = () => {
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">User</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Request</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Priority</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Created</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Updated</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</th>
                                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Actions</th>
                                 </tr>
@@ -162,8 +189,18 @@ const AdminDashboard = () => {
                                             <div className="text-sm font-bold text-gray-900 dark:text-white">{req.title}</div>
                                             <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{req.description}</div>
                                         </td>
+                                        
+                                        {/* priority column */}
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2.5 py-1 text-xs font-bold rounded-full 
+                                                ${req.priority === 'HIGH' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 
+                                                  req.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' : 
+                                                  'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'}`}>
+                                                {req.priority}
+                                            </span>
+                                        </td>
+
                                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{new Date(req.createdAt).toLocaleDateString()}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{req.updatedAt ? new Date(req.updatedAt).toLocaleDateString() : '-'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 text-xs font-bold rounded-full
                                                 ${req.status === 'PENDING' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' :

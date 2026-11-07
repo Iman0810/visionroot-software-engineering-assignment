@@ -2,6 +2,8 @@ package lk.visionroot.assignment.service;
 
 import lk.visionroot.assignment.dto.CreateServiceRequestDto;
 import lk.visionroot.assignment.dto.ServiceRequestDto;
+import lk.visionroot.assignment.entity.Priority;
+import lk.visionroot.assignment.entity.Role;
 import lk.visionroot.assignment.entity.ServiceRequest;
 import lk.visionroot.assignment.entity.Status;
 import lk.visionroot.assignment.entity.User;
@@ -13,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import lk.visionroot.assignment.entity.Priority;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,7 +29,7 @@ public class ServiceRequestService {
     private final ServiceRequestRepository requestRepository;
     private final UserRepository userRepository;
 
-    // Helper to get the currently logged-in user
+    
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -72,13 +73,26 @@ public class ServiceRequestService {
                 .stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
+    public ServiceRequestDto getRequestById(Long id) {
+        ServiceRequest request = requestRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Request not found"));
+                
+        // Only the owner or an Admin can view it
+        User currentUser = getCurrentUser();
+        if (!request.getUser().getId().equals(currentUser.getId()) && currentUser.getRole() != Role.ADMIN) {
+            throw new BadRequestException("Unauthorized to view this request");
+        }
+        
+        return mapToDto(request);
+    }
+
     public ServiceRequestDto updateStatus(Long requestId, Status newStatus) {
         ServiceRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new BadRequestException("Request not found"));
 
         Status currentStatus = request.getStatus();
 
-        //  business rules
+        // Business rules
         if (currentStatus == Status.RESOLVED || currentStatus == Status.CANCELLED) {
             throw new BadRequestException("Cannot update a request that is already RESOLVED or CANCELLED");
         }
@@ -101,7 +115,7 @@ public class ServiceRequestService {
 
         // User can only cancel their own request 
         User currentUser = getCurrentUser();
-        if (!request.getUser().getId().equals(currentUser.getId()) && !currentUser.getRole().name().equals("ADMIN")) {
+        if (!request.getUser().getId().equals(currentUser.getId()) && currentUser.getRole() != Role.ADMIN) {
             throw new BadRequestException("You can only cancel your own requests");
         }
 
@@ -112,17 +126,12 @@ public class ServiceRequestService {
         request.setStatus(Status.CANCELLED);
         return mapToDto(requestRepository.save(request));
     }
-    
-    public List<ServiceRequestDto> getAllRequestsAdmin() {
-        return requestRepository.findAll()
-                .stream().map(this::mapToDto).collect(Collectors.toList());
-    }
 
     public ServiceRequestDto updateRequest(Long id, CreateServiceRequestDto dto) {
         ServiceRequest request = requestRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Request not found"));
 
-        // Rule: A user may edit a request only while it is PENDING.
+    
         if (request.getStatus() != Status.PENDING) {
             throw new BadRequestException("You can only edit requests that are PENDING");
         }
@@ -131,15 +140,15 @@ public class ServiceRequestService {
         request.setDescription(dto.getDescription());
         request.setCategory(dto.getCategory());
         request.setPriority(dto.getPriority());
-        
 
         return mapToDto(requestRepository.save(request));
     }
 
+    
     public Page<ServiceRequestDto> getAllRequestsAdmin(
             int page, int size, String search, String status, String priority, String sortBy, String sortDir
     ) {
-        // Setup Sorting (default to createdAt desc)
+        
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 

@@ -76,7 +76,7 @@ public class UserController {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(currentEmail).orElseThrow();
 
-        // Check if new email is already taken by someone else
+        // check whether the new email is already taken by someone else
         if (!currentEmail.equals(newEmail) && userRepository.existsByEmail(newEmail)) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use"));
         }
@@ -85,8 +85,6 @@ public class UserController {
         user.setEmail(newEmail);
         userRepository.save(user);
 
-        // Note: If email changes, the JWT token becomes invalid for the old email. 
-        // In a real app, you'd return a new token. For this assignment, we'll just tell them to log in again.
         return ResponseEntity.ok(Map.of("message", "Profile updated successfully. Please log in again.", "emailChanged", !currentEmail.equals(newEmail)));
     }
 }

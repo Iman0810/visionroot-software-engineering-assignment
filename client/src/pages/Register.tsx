@@ -4,7 +4,7 @@ import axiosClient from '../api/axiosClient';
 import logo from '../assets/logo.png';
 
 const Register = () => {
-    const [name, setName] = useState(''); // NEW
+    const [name, setName] = useState(''); 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,7 +57,7 @@ const Register = () => {
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     
-                    {/* NEW: Full Name Field */}
+                    {/* Full Name Field */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                         <input 

@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode, 
 };
 
 function App() {
-  const { role } = useContext(AuthContext); // Extract role here
+  const { role } = useContext(AuthContext); 
 
   return (
     <Routes>
@@ -38,7 +38,7 @@ function App() {
         </ProtectedRoute>
       } />
 
-      {/* Profile is accessible to both, but we still protect it */}
+      
       <Route path="/profile" element={
         <ProtectedRoute allowedRole={role === 'ADMIN' ? 'ADMIN' : 'USER'}>
           <Profile />

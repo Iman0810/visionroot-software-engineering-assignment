@@ -22,12 +22,13 @@ public class DataSeeder implements CommandLineRunner {
 
         if (!adminExists) {
             User admin = User.builder()
+                    .name("Super Admin")
                     .email("admin@visionroot.lk")
                     .password(passwordEncoder.encode("admin123"))
                     .role(Role.ADMIN)
                     .build();
             userRepository.save(admin);
-            System.out.println("Default Admin created: admin@visionroot.lk / admin123");
+            System.out.println("Default Admin created: admin@visionroot.lk or use Super Admin / admin123");
         }
     }
 }

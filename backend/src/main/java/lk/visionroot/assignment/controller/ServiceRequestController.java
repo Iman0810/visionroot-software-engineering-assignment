@@ -2,7 +2,6 @@ package lk.visionroot.assignment.controller;
 
 import lk.visionroot.assignment.dto.CreateServiceRequestDto;
 import lk.visionroot.assignment.dto.ServiceRequestDto;
-import lk.visionroot.assignment.dto.UpdateServiceRequestDto;
 import lk.visionroot.assignment.dto.UpdateStatusDto;
 import lk.visionroot.assignment.service.ServiceRequestService;
 import jakarta.validation.Valid;
@@ -22,7 +21,7 @@ public class ServiceRequestController {
 
     private final ServiceRequestService service;
 
-    //user endpoints
+    // user endpoints
 
     @PostMapping
     public ResponseEntity<ServiceRequestDto> createRequest(@Valid @RequestBody CreateServiceRequestDto dto) {
@@ -33,6 +32,12 @@ public class ServiceRequestController {
     public ResponseEntity<List<ServiceRequestDto>> getMyRequests() {
         return ResponseEntity.ok(service.getMyRequests());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ServiceRequestDto> getRequestById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getRequestById(id));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ServiceRequestDto> updateRequest(
             @PathVariable Long id, 
@@ -41,11 +46,17 @@ public class ServiceRequestController {
         return ResponseEntity.ok(service.updateRequest(id, dto));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ServiceRequestDto> deleteRequest(@PathVariable Long id) {
+        return ResponseEntity.ok(service.cancelRequest(id));
+    }
+
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ServiceRequestDto> cancelRequest(@PathVariable Long id) {
         return ResponseEntity.ok(service.cancelRequest(id));
     }
-    
+
+    //admin endpoints
 
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
@@ -69,5 +80,4 @@ public class ServiceRequestController {
     ) {
         return ResponseEntity.ok(service.updateStatus(id, dto.getStatus()));
     }
-
 }

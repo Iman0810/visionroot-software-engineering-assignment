@@ -28,7 +28,7 @@ public class AuthenticationService {
         }
 
         var user = User.builder()
-                .name(request.getName() != null ? request.getName() : "Unknown User") // Handle null for old registrations
+                .name(request.getName() != null ? request.getName() : "Unknown User") 
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(lk.visionroot.assignment.entity.Role.USER)
@@ -41,7 +41,7 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .role(user.getRole().name())
                 .email(user.getEmail())
-                .name(user.getName()) // Send name back to frontend
+                .name(user.getName()) 
                 .build();
     }
 
@@ -49,7 +49,7 @@ public class AuthenticationService {
         // Authenticate using the provided email/name
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(), // Frontend will send email OR name here
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
@@ -64,7 +64,7 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .role(user.getRole().name())
                 .email(user.getEmail())
-                .name(user.getName()) // Send name back to frontend
+                .name(user.getName()) 
                 .build();
     }
 }

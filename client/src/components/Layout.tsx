@@ -96,7 +96,7 @@ const Layout = ({ children, title }: LayoutProps) => {
                 </div>
             </nav>
 
-            {/* Main Content - Wrapped in a container to fix the layout */}
+            {/* Main Contentt */}
             <main className="flex-1 w-full max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>

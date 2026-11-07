@@ -13,7 +13,7 @@ const NotificationBell = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     
-    // Ref for the dropdown container
+   
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const [readIds, setReadIds] = useState<number[]>(() => {
@@ -21,7 +21,7 @@ const NotificationBell = () => {
         return saved ? JSON.parse(saved) : [];
     });
 
-    // Handle Click Outside
+  
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -29,10 +29,10 @@ const NotificationBell = () => {
             }
         };
 
-        // Bind the event listener
+        
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-            // Unbind the event listener on clean up
+           
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [dropdownRef]);
@@ -93,7 +93,7 @@ const NotificationBell = () => {
     const unreadCount = notifications.filter(n => !readIds.includes(n.id)).length;
 
     return (
-        // Attach the ref to this wrapper div
+       
         <div className="relative" ref={dropdownRef}>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
