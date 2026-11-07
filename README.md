@@ -1,5 +1,11 @@
 # VisionRoot - Service Request Management System
 
+##  Live Demo
+- **Frontend (Vercel):** [https://visionroot-software-engineering-assignment.vercel.app](https://visionroot-software-engineering-assignment.vercel.app)
+- **Backend API (Render):** [https://visionroot-backend.onrender.com](https://visionroot-backend.onrender.com)
+
+*(Note: The backend is hosted on Render's free tier and may take up to 50 seconds to "wake up" on the first request).*
+
 A production-ready full-stack web application built for the VisionRoot Software Engineering Intern Technical Assignment. It allows registered users to create and manage service requests, while administrators can view, filter, update, and manage request statuses based on strict business rules.
 
 ## Technology Stack & Architecture
@@ -24,6 +30,33 @@ This project is structured as a monorepo containing both the backend and fronten
 - **Users Table:** `id`, `name`, `email` (unique), `password` (BCrypt hashed), `role` (USER/ADMIN)
 - **Service Requests Table:** `id`, `title`, `description`, `category`, `priority`, `status`, `user_id` (Foreign Key), `created_at`, `updated_at`
 
+### Entity Relationship (ER) Diagram
+The database consists of two main tables with a One-to-Many relationship (One User can have Many Service Requests).
+
+```mermaid
+erDiagram
+    USERS {
+        bigint id PK
+        varchar name
+        varchar email UK
+        varchar password
+        varchar role
+    }
+    SERVICE_REQUESTS {
+        bigint id PK
+        varchar title
+        text description
+        varchar category
+        varchar priority
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+        bigint user_id FK
+    }
+    
+    USERS ||--o{ SERVICE_REQUESTS : "creates"
+    ```
+
 ##  Authentication & Authorization
 - Authentication is handled via JWT. Passwords are strictly hashed using BCrypt.
 - **Security Rule:** To prevent privilege escalation, public registration strictly forces the `USER` role. 
@@ -47,7 +80,7 @@ JWT_SECRET=your_secret_key
 
 1.Database setup
 
-Ensure PostgreSQL is running and Creat the database:
+Ensure PostgreSQL is running and Create the database:
 ```bash
 psql -U postgres -c "CREATE DATABASE visionroot_db;"
 ```
@@ -85,6 +118,10 @@ To run the backend JUnit tests(which verify the strict business rules for status
 cd backend
 ./mvnw test
 ```
+
+## API Documentation
+- **Live Swagger UI:** [https://visionroot-backend.onrender.com/swagger-ui/index.html](https://visionroot-backend.onrender.com/swagger-ui/index.html)
+- **API Collection:** The repository includes a `postman_collection.json` file (OpenAPI 3.0 spec). You can import this file directly into Postman or Insomnia to instantly generate all endpoints and test the API.
 
 ## Key Assumptions and Features
 1. Dual Login: Users can log in using either their Email or their Name.
