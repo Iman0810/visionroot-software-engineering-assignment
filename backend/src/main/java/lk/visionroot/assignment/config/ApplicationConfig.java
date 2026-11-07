@@ -21,13 +21,18 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> repository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            var user = repository.findByEmail(username);
+            if (user.isEmpty()) {
+                user = repository.findByName(username);
+            }
+            return user.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        };
     }
 
-        @Bean
+    @Bean
     public AuthenticationProvider authenticationProvider() {
-        
+        // FIX: Pass the userDetailsService into the constructor
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;

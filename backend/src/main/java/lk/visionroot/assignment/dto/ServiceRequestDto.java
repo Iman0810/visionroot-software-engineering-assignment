@@ -21,6 +21,7 @@ public class ServiceRequestDto {
     private Priority priority;
     private Status status;
     private String userEmail;
+    private String userName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

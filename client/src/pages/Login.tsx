@@ -15,16 +15,16 @@ const Login = () => {
         e.preventDefault();
         setError('');
 
-        // Basic Email Regex Validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError('Please enter a valid email address.');
-            return;
-        }
+        // // Basic Email Regex Validation
+        // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // if (!emailRegex.test(email)) {
+        //     setError('Please enter a valid email address.');
+        //     return;
+        // }
 
         try {
             const response = await axiosClient.post('/auth/login', { email, password });
-            login(response.data.token, response.data.role, response.data.email);
+            login(response.data.token, response.data.role, response.data.email, response.data.name);
             navigate(response.data.role === 'ADMIN' ? '/admin' : '/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed. Check your credentials.');
@@ -46,9 +46,9 @@ const Login = () => {
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email or Username</label>
                         <input 
-                            type="email" 
+                            type="text" 
                             required 
                             className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition"
                             value={email}

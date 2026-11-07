@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode, allowedRole: string }) => {
@@ -17,6 +18,8 @@ const ProtectedRoute = ({ children, allowedRole }: { children: React.ReactNode, 
 };
 
 function App() {
+  const { role } = useContext(AuthContext); // Extract role here
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
@@ -32,6 +35,13 @@ function App() {
       <Route path="/admin" element={
         <ProtectedRoute allowedRole="ADMIN">
           <AdminDashboard />
+        </ProtectedRoute>
+      } />
+
+      {/* Profile is accessible to both, but we still protect it */}
+      <Route path="/profile" element={
+        <ProtectedRoute allowedRole={role === 'ADMIN' ? 'ADMIN' : 'USER'}>
+          <Profile />
         </ProtectedRoute>
       } />
     </Routes>

@@ -45,6 +45,7 @@ public class ServiceRequestService {
                 .priority(request.getPriority())
                 .status(request.getStatus())
                 .userEmail(request.getUser().getEmail())
+                .userName(request.getUser().getName())
                 .createdAt(request.getCreatedAt())
                 .updatedAt(request.getUpdatedAt())
                 .build();
@@ -130,6 +131,7 @@ public class ServiceRequestService {
         request.setDescription(dto.getDescription());
         request.setCategory(dto.getCategory());
         request.setPriority(dto.getPriority());
+        
 
         return mapToDto(requestRepository.save(request));
     }

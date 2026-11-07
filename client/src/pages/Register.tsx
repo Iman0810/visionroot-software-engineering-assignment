@@ -4,6 +4,7 @@ import axiosClient from '../api/axiosClient';
 import logo from '../assets/logo.png';
 
 const Register = () => {
+    const [name, setName] = useState(''); // NEW
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +34,8 @@ const Register = () => {
         }
 
         try {
-            await axiosClient.post('/auth/register', { email, password }); // Role removed
+            // Send name, email, and password to backend
+            await axiosClient.post('/auth/register', { name, email, password }); 
             navigate('/login');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Email might be in use.');
@@ -51,9 +53,20 @@ const Register = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Join VisionRoot today</p>
                 </div>
 
-                {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-100 text-center">{error}</div>}
+                {error && <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm mb-4 border border-red-100 dark:border-red-800 text-center">{error}</div>}
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    
+                    {/* NEW: Full Name Field */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                        <input 
+                            type="text" required 
+                            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            value={name} onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                         <input 

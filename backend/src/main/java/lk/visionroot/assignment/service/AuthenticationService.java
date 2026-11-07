@@ -28,10 +28,11 @@ public class AuthenticationService {
         }
 
         var user = User.builder()
-        .email(request.getEmail())
-        .password(passwordEncoder.encode(request.getPassword()))
-        .role(lk.visionroot.assignment.entity.Role.USER) // Force user role
-        .build();
+                .name(request.getName() != null ? request.getName() : "Unknown User") // Handle null for old registrations
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(lk.visionroot.assignment.entity.Role.USER)
+                .build();;
                 
         repository.save(user);
         
@@ -40,19 +41,22 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .role(user.getRole().name())
                 .email(user.getEmail())
+                .name(user.getName()) // Send name back to frontend
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        // throws exception if authentication fails
+       public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        // Authenticate using the provided email/name
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
+                        request.getEmail(), // Frontend will send email OR name here
                         request.getPassword()
                 )
         );
         
+        // Find the user to generate the token
         var user = repository.findByEmail(request.getEmail())
+                .or(() -> repository.findByName(request.getEmail()))
                 .orElseThrow(); 
                 
         var jwtToken = jwtService.generateToken(user);
@@ -60,6 +64,7 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .role(user.getRole().name())
                 .email(user.getEmail())
+                .name(user.getName()) // Send name back to frontend
                 .build();
     }
 }

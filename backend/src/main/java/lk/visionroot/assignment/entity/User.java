@@ -31,6 +31,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = true)
+    private String name;
+
    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
