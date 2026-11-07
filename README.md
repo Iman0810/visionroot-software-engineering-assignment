@@ -55,7 +55,7 @@ erDiagram
     }
     
     USERS ||--o{ SERVICE_REQUESTS : "creates"
-    ```
+ ```
 
 ##  Authentication & Authorization
 - Authentication is handled via JWT. Passwords are strictly hashed using BCrypt.
