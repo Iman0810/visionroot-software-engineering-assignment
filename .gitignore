@@ -34,3 +34,9 @@ build/
 
 .env
 .envrc
+
+
+# Environment variables
+.env
+.env.local
+.env.production
