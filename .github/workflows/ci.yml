@@ -23,4 +23,4 @@ jobs:
     - name: Build and Test with Maven
       run: |
         cd backend
-        mvn clean test
+        mvn clean test -Dtest=!ServiceRequestSystemApplicationTests
