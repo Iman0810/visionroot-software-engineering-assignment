@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL;
+    }
+    if (window.location.port === '5173') {
+        return 'http://localhost:8080/api';
+    }
+    return '/api'; // Fallback for Docker
+};
+
 const axiosClient = axios.create({
-    baseURL: window.location.port === '5173' ? 'http://localhost:8080/api' : '/api',
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },
