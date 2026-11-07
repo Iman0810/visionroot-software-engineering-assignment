@@ -89,7 +89,10 @@ psql -U postgres -c "CREATE DATABASE visionroot_db;"
 2. Backend Setup
 ```bash
 cd backend
+#on linux/mac/git bash:
 ./mvnw spring-boot:run
+#on windows command prompt/powershell:
+mvnw.cmd spring-boot:run
 ```
 The backend runs on http://localhost:8080.
 
@@ -109,6 +112,8 @@ The frontend runs on http://localhost:5173.
 if you have Docker installed, you can spin up the entire backend (Springboot+Postgres) with a single command from the root directory:
 ```bash
 docker-compose up --build -d
+#or
+docker compose up --build -d
 ```
 
 ## Running Automated Tests
