@@ -35,7 +35,7 @@ class BusinessRuleTest {
     private ServiceRequest pendingRequest;
     private User mockUser;
 
-    @BeforeEach
+    @BeforeEach 
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
