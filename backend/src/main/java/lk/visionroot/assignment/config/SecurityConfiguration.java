@@ -15,7 +15,7 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import java.util.List;
 
 @Configuration
@@ -26,6 +26,14 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+
+
+   
+
+    @Bean
+    public CsrfTokenRequestAttributeHandler requestHandler() {
+        return new CsrfTokenRequestAttributeHandler();
+    }
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
@@ -41,6 +49,7 @@ public class SecurityConfiguration {
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/auth/**")
                 .csrfTokenRepository(csrfTokenRepository()) 
+                .csrfTokenRequestHandler(requestHandler())
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
