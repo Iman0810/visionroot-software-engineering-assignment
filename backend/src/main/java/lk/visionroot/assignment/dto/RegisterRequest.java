@@ -1,6 +1,6 @@
 package lk.visionroot.assignment.dto;
 
-import lk.visionroot.assignment.entity.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -17,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -32,17 +33,15 @@ public class ServiceRequestIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private ServiceRequestRepository requestRepository; 
+    private ServiceRequestRepository requestRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        // Delete requests first to avoid FK constraint violation
         requestRepository.deleteAll(); 
         userRepository.deleteAll(); 
         
-        //create a mock user for testing
         User testUser = User.builder()
                 .name("Test User")
                 .email("user@test.com")
@@ -62,6 +61,7 @@ public class ServiceRequestIntegrationTest {
         dto.setPriority(Priority.HIGH);
 
         mockMvc.perform(post("/api/requests")
+                .with(csrf()) 
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -78,6 +78,7 @@ public class ServiceRequestIntegrationTest {
         dto.setPriority(Priority.LOW);
 
         mockMvc.perform(post("/api/requests")
+                .with(csrf()) 
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
@@ -98,6 +99,6 @@ public class ServiceRequestIntegrationTest {
     @WithMockUser(username = "user@test.com", roles = "USER")
     void shouldReturnForbiddenWhenAccessingAdminEndpoint() throws Exception {
         mockMvc.perform(get("/api/users"))
-                .andExpect(status().isForbidden()); // 403
+                .andExpect(status().isForbidden());
     }
 }

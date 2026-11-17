@@ -15,18 +15,20 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // Include cookies in requests
 });
 
 // Automatically attach the JWT token 
-axiosClient.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
+axiosClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // if the token expires orinvalid returns 401/403
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            // Clear local state and redirect to login (handled in AuthContext usually)
+            console.warn("Session expired or unauthorized. Please log in again.");
         }
-        return config;
-    },
-    (error) => Promise.reject(error)
+        return Promise.reject(error);
+    }
 );
 
 export default axiosClient;
