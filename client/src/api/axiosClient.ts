@@ -18,9 +18,8 @@ const axiosClient = axios.create({
     withCredentials: true, 
 });
 
-
+// Attach CSRF token for state-changing requests
 axiosClient.interceptors.request.use((config) => {
-    
     const getCookie = (name: string) => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -30,14 +29,12 @@ axiosClient.interceptors.request.use((config) => {
 
     const csrfToken = getCookie('XSRF-TOKEN');
     
-    
     if (csrfToken && config.headers) {
         config.headers['X-XSRF-TOKEN'] = csrfToken;
     }
     
     return config;
 });
-
 
 axiosClient.interceptors.response.use(
     (response) => response,
