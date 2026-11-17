@@ -7,7 +7,7 @@ const getBaseUrl = () => {
     if (window.location.port === '5173') {
         return 'http://localhost:8080/api';
     }
-    return '/api'; // Fallback for Docker
+    return '/api';
 };
 
 const axiosClient = axios.create({
@@ -15,16 +15,34 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    withCredentials: true, // Include cookies in requests
+    withCredentials: true, 
 });
 
-// Automatically attach the JWT token 
+
+axiosClient.interceptors.request.use((config) => {
+    
+    const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+    };
+
+    const csrfToken = getCookie('XSRF-TOKEN');
+    
+    
+    if (csrfToken && config.headers) {
+        config.headers['X-XSRF-TOKEN'] = csrfToken;
+    }
+    
+    return config;
+});
+
+
 axiosClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        // if the token expires orinvalid returns 401/403
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            // Clear local state and redirect to login (handled in AuthContext usually)
             console.warn("Session expired or unauthorized. Please log in again.");
         }
         return Promise.reject(error);
