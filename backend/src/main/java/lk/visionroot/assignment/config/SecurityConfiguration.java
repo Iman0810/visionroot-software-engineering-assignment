@@ -51,7 +51,7 @@ public class SecurityConfiguration {
         configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:5173", 
             "http://localhost:3000", 
-            "https://*.vercel.app" 
+            "https://visionroot-software-engineering-ass.vercel.app"
         )); 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
