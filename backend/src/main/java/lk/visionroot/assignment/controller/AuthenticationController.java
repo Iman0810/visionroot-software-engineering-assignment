@@ -41,6 +41,7 @@ public class AuthenticationController {
                 .sameSite("None")      // Required for Cross-Origin 
                 .path("/")             // Cookie is valid for all paths
                 .maxAge(Duration.ofDays(1)) // Expires in 1 day
+                .partitioned(true)
                 .build();
 
         // Attach cookie to the response header AND return the JSON body
@@ -58,6 +59,7 @@ public class AuthenticationController {
                 .sameSite("None")
                 .path("/")
                 .maxAge(0) // Expire immediately
+                .partitioned(true)
                 .build();
                 
         return ResponseEntity.ok()
