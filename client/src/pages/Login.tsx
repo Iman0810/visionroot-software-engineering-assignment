@@ -24,7 +24,7 @@ const Login = () => {
 
         try {
             const response = await axiosClient.post('/auth/login', { email, password });
-            login(response.data.token, response.data.role, response.data.email, response.data.name);
+            login(response.data.role, response.data.email, response.data.name);
             navigate(response.data.role === 'ADMIN' ? '/admin' : '/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed. Check your credentials.');

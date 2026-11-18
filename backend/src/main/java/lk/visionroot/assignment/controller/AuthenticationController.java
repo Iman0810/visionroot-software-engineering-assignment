@@ -35,11 +35,11 @@ public class AuthenticationController {
         
         ResponseCookie cookie = ResponseCookie.from("jwt", response.getToken())
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(false)
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofDays(1))
-                .partitioned(true) 
+                //.partitioned(true) 
                 .build();
 
         return ResponseEntity.ok()
@@ -47,15 +47,14 @@ public class AuthenticationController {
                 .body(response);
     }
 
-    @PostMapping("/logout")
+     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
+                .secure(false) 
+                .sameSite("Lax") 
                 .path("/")
                 .maxAge(0)
-                .partitioned(true) 
                 .build();
                 
         return ResponseEntity.ok()

@@ -27,18 +27,15 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-
-   
-
     @Bean
     public CsrfTokenRequestAttributeHandler requestHandler() {
         return new CsrfTokenRequestAttributeHandler();
     }
 
-    @Bean
+     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        repository.setCookieCustomizer(cookie -> cookie.partitioned(true));
+        repository.setCookieCustomizer(cookie -> cookie.partitioned(false).sameSite("Lax").secure(false));
         return repository;
     }
 
@@ -56,7 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() 
                 .anyRequest().authenticated()
             )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

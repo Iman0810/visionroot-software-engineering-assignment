@@ -6,7 +6,7 @@ interface AuthContextType {
     role: string | null;
     email: string | null;
     name: string | null;
-    login: (token: string, role: string, email: string, name: string) => void;
+    login: (newRole: string, newEmail: string, newName: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -14,55 +14,53 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-   
     const [token, setToken] = useState<string | null>(null); 
-    const [role, setRole] = useState<string | null>(localStorage.getItem('role'));
-    const [email, setEmail] = useState<string | null>(localStorage.getItem('email'));
-    const [name, setName] = useState<string | null>(localStorage.getItem('name'));
+    const [role, setRole] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
+    const [name, setName] = useState<string | null>(null);
 
     
     useEffect(() => {
         const verifySession = async () => {
             try {
                 
-                await axiosClient.get('/users/me'); 
-                setToken("session-active"); 
+                const res = await axiosClient.get('/users/me');
+               
+                setToken("session-active");
+                setRole(res.data.role);
+                setEmail(res.data.email);
+                setName(res.data.name || res.data.email);
             } catch (error) {
+                
+                console.warn("No active session found.");
                 logout();
             }
         };
         
-        if (localStorage.getItem('role')) {
-            verifySession();
-        }
+        verifySession();
     }, []);
 
-    const login = (_newToken: string, newRole: string, newEmail: string, newName: string) => {
- 
-        localStorage.setItem('role', newRole);
-        localStorage.setItem('email', newEmail);
-        localStorage.setItem('name', newName);
+    const login = (newRole: string, newEmail: string, newName: string) => {
         
         setToken("session-active"); 
         setRole(newRole);
         setEmail(newEmail);
-        setName(newName);
+        setName(newName || newEmail);
     };
 
     const logout = async () => {
         try {
-    
             await axiosClient.post('/auth/logout');
         } catch (err) {
             console.error("Logout failed", err);
         }
+        const currentTheme = localStorage.getItem('theme');
         
-        
-        localStorage.removeItem('role');
-        localStorage.removeItem('email');
-        localStorage.removeItem('name');
-        localStorage.removeItem('readNotifications');
-        
+        localStorage.clear(); 
+
+        if(currentTheme){
+            localStorage.setItem('theme', currentTheme);
+        }
         setToken(null);
         setRole(null);
         setEmail(null);
