@@ -42,7 +42,7 @@ const Profile = () => {
             } else {
                 setProfileMessage({ text: 'Profile updated successfully!', type: 'success' });
 
-                const updatedProfile = await axiosClient.get('/users/me');
+                await axiosClient.get('/users/me');
 
                 window.location.reload();
             }
