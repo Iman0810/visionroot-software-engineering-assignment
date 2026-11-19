@@ -41,6 +41,10 @@ const Profile = () => {
                 setTimeout(() => { logout(); navigate('/login'); }, 2000);
             } else {
                 setProfileMessage({ text: 'Profile updated successfully!', type: 'success' });
+
+                const updatedProfile = await axiosClient.get('/users/me');
+
+                window.location.reload();
             }
         } catch (err: any) {
             setProfileMessage({ text: err.response?.data?.message || 'Failed to update profile.', type: 'error' });
