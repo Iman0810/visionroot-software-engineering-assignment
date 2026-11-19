@@ -1,8 +1,9 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const getBaseUrl = () => {
-    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    // If running locally 
     if (window.location.port === '5173') return 'http://localhost:8080/api';
+    // If running in production
     return '/api';
 };
 
@@ -27,16 +28,13 @@ axiosClient.interceptors.request.use((config) => {
     return config;
 });
 
-
 axiosClient.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
         
-        
         if (error.response?.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true;
-
             await new Promise(resolve => setTimeout(resolve, 100));
             return axiosClient(originalRequest);
         }
