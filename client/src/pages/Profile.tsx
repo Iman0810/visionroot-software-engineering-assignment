@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-    const { role, logout } = useContext(AuthContext);
+    const { role, logout , updateName } = useContext(AuthContext);
     const navigate = useNavigate();
     
     const [profile, setProfile] = useState({ name: '', email: '', role: '' });
@@ -42,9 +42,7 @@ const Profile = () => {
             } else {
                 setProfileMessage({ text: 'Profile updated successfully!', type: 'success' });
 
-                await axiosClient.get('/users/me');
-
-                window.location.reload();
+                updateName(name);
             }
         } catch (err: any) {
             setProfileMessage({ text: err.response?.data?.message || 'Failed to update profile.', type: 'error' });

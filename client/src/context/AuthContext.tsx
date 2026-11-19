@@ -8,6 +8,7 @@ interface AuthContextType {
     name: string | null;
     login: (newRole: string, newEmail: string, newName: string) => void;
     logout: () => void;
+    updateName: (newName: string) => void;
     isAuthenticated: boolean;
 }
 
@@ -18,6 +19,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [role, setRole] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
     const [name, setName] = useState<string | null>(null);
+    const updateName = (newName: string) => {
+        setName(newName);
+        localStorage.setItem('name', newName);
+    }
+    
 
     
     useEffect(() => {
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ token, role, email, name, login, logout, isAuthenticated: !!token }}>
+        <AuthContext.Provider value={{ token, role, email, name, login, logout, updateName, isAuthenticated: !!token }}>
             {children}
         </AuthContext.Provider>
     );

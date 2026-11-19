@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react'; // Added useContext
 import Layout from '../components/Layout';
 import axiosClient from '../api/axiosClient';
+import { AuthContext } from '../context/AuthContext'; // Added AuthContext import
 
 interface ServiceRequest {
     id: number;
@@ -23,6 +24,8 @@ interface AppUser {
 }
 
 const AdminDashboard = () => {
+    const { email: currentAdminEmail } = useContext(AuthContext); // Get current admin's email
+    
     const [activeTab, setActiveTab] = useState<'requests' | 'users'>('requests');
     
     // Request State
@@ -41,6 +44,7 @@ const AdminDashboard = () => {
     // Modals & Stats
     const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState(''); // NEW: For role change success
 
     const fetchRequests = async () => {
         try {
@@ -79,12 +83,30 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleRoleChange = async (id: number, newRole: string) => {
+    // UPDATED: Handle Role Change with safety check
+    const handleRoleChange = async (id: number, newRole: string, userEmail: string) => {
+        // 1. Prevent self-demotion
+        if (userEmail === currentAdminEmail) {
+            setError("You cannot demote yourself. Please ask another admin to do this or log out and log back in as a different user.");
+            setTimeout(() => setError(''), 5000); // Clear message after 5 seconds
+            return;
+        }
+
+        // 2. Confirm action
         if (!window.confirm(`Change user role to ${newRole}?`)) return;
+        
+        // 3. Execute API call
         try {
             await axiosClient.patch(`/users/${id}/role?role=${newRole}`);
             fetchUsers();
-        } catch (err) { console.error(err); }
+            setError('');
+            setSuccessMessage(`Successfully changed ${userEmail}'s role to ${newRole}`);
+            setTimeout(() => setSuccessMessage(''), 4000); // Clear after 4 seconds
+        } catch (err) { 
+            console.error(err); 
+            setError("Failed to update user role.");
+            setTimeout(() => setError(''), 4000);
+        }
     };
 
     const stats = {
@@ -142,7 +164,9 @@ const AdminDashboard = () => {
                 <button className={`py-3 px-6 font-medium text-sm ${activeTab === 'users' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} onClick={() => setActiveTab('users')}>Manage Users</button>
             </div>
 
+            {/* Banners */}
             {error && <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-4 rounded mb-6">{error}</div>}
+            {successMessage && <div className="bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-400 p-4 rounded mb-6">{successMessage}</div>}
 
             {activeTab === 'requests' && (
                 <>
@@ -254,9 +278,9 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         {u.role === 'USER' ? (
-                                            <button onClick={() => handleRoleChange(u.id, 'ADMIN')} className="text-purple-600 dark:text-purple-400 hover:text-purple-900 text-sm font-medium">Make Admin</button>
+                                            <button onClick={() => handleRoleChange(u.id, 'ADMIN', u.email)} className="text-purple-600 dark:text-purple-400 hover:text-purple-900 text-sm font-medium">Make Admin</button>
                                         ) : (
-                                            <button onClick={() => handleRoleChange(u.id, 'USER')} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 text-sm font-medium">Demote to User</button>
+                                            <button onClick={() => handleRoleChange(u.id, 'USER', u.email)} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 text-sm font-medium">Demote to User</button>
                                         )}
                                     </td>
                                 </tr>
