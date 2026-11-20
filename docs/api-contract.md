@@ -4,9 +4,9 @@ All endpoints are prefixed with `/api`. The API uses **JSON** for request and re
 
 ## 🔐 Authentication & Authorization
 - **Public Endpoints:** `/api/auth/**` (No token required).
-- **User Endpoints:** Require a valid JWT with the `USER` or `ADMIN` role.
-- **Admin Endpoints:** Require a valid JWT with the `ADMIN` role only.
-- **Token Format:** All protected requests must include the header: `Authorization: Bearer <JWT_TOKEN>`.
+- **User Endpoints:** Require a valid JWT cookie with the `USER` or `ADMIN` role.
+- **Admin Endpoints:** Require a valid JWT cookie with the `ADMIN` role only.
+- **Authentication Mechanism:** The backend uses **Stateful HttpOnly Cookies**. The JWT is sent in the `jwt` cookie, which is `HttpOnly`, `Secure`, and `SameSite=Lax`. The frontend does NOT manually attach the token to headers.
 
 ---
 
@@ -52,11 +52,10 @@ Authenticate an existing user and receive a JWT.
 
 ### 1.3 POST `/logout`
 
-Log out the user.
+Log out the user by clearing the JWT cookie.
 
-- Note: Because we use Stateless JWT, this endpoint simply returns a success message. The actual logout (deleting the token) is handled client-side by removing it from localStorage.
-
-- Response (200 OK): { "message": "Logged out successfully" }
+- **Note:** The backend sends an expired `jwt` cookie (`maxAge=0`) to clear the browser state. No server-side session is destroyed because the backend is stateless.
+- **Response (200 OK):** `{ "message": "Logged out successfully" }`
 
 
 ## 2. Service Request Controller (/api/requests)
