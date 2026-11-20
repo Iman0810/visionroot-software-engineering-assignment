@@ -49,11 +49,11 @@ public class AuthenticationLifecycleTest {
         @Test
     @WithMockUser(username = "lifecycle@test.com", roles = "USER")
     void fullAuthenticationLifecycle() throws Exception {
-        // 1. Verify we can access a protected endpoint as a logged-in user
+        // verify we can access a protected endpoint as a logged-in user
         mockMvc.perform(get("/api/requests"))
                 .andExpect(status().isOk());
 
-        // 2. Logout should succeed and clear the cookie
+        // logout should succeed and clear the cookie
         MvcResult logoutResult = mockMvc.perform(post("/api/auth/logout"))
                 .andExpect(status().isOk())
                 .andReturn();
