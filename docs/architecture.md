@@ -5,7 +5,41 @@ This project utilizes a **Modular Monolith** architecture. A single Spring Boot 
 
 This was chosen over microservices to reduce network latency, simplify local development, and avoid distributed transaction complexity for a project of this scope.
 
-## 2. Request Flow (Example: Creating a Request)
+## 2. Context / Container Diagram
+```mermaid
+flowchart TD
+    subgraph Client Tier
+        Browser[Web Browser]
+        ReactApp[React Frontend\n(Vercel)]
+    end
+
+    subgraph Edge Tier
+        VercelProxy[Vercel Reverse Proxy\n/vercel.json]
+    end
+
+    subgraph Backend Tier
+        SpringApp[Spring Boot Backend\n(Docker on Render)]
+        SecurityFilter[Spring Security\nJWT + CORS]
+        Controllers[Controllers]
+        Services[Service Layer\nBusiness Logic]
+        Repos[Repositories\nSpring Data JPA]
+    end
+
+    subgraph Data Tier
+        DB[(PostgreSQL Database\nRender)]
+    end
+
+    Browser -->|Interacts with| ReactApp
+    ReactApp -->|HTTPS API Call\n/api/requests| VercelProxy
+    VercelProxy -->|Forwards Request| SpringApp
+    SpringApp -->|Passes through| SecurityFilter
+    SecurityFilter -->|Validated Request| Controllers
+    Controllers -->|Calls| Services
+    Services -->|Calls| Repos
+    Repos -->|SQL Queries| DB
+```
+
+## 3. Request Flow (Example: Creating a Request)
 
 In production, the request flow includes a **Vercel Reverse Proxy** to eliminate cross-domain cookie issues:
 
@@ -17,7 +51,7 @@ In production, the request flow includes a **Vercel Reverse Proxy** to eliminate
 6. **Repository (`ServiceRequestRepository`):** Persists the Entity to the PostgreSQL database.
 7. **Response:** The Service maps the saved Entity to a DTO and returns a `200 OK`. The browser receives the response from Vercel and updates the UI.
 
-## 3. Authentication Architecture (Stateful JWT)
+## 4. Authentication Architecture (Stateful JWT)
 
 The application uses a **Stateful JWT** architecture to mitigate XSS vulnerabilities:
 - **Login:** The backend generates a JWT and sends it in a **`Set-Cookie`** header with `HttpOnly`, `Secure`, and `SameSite` attributes.
@@ -26,7 +60,7 @@ The application uses a **Stateful JWT** architecture to mitigate XSS vulnerabili
 - **CSRF Protection:** For the live demo, CSRF is disabled to avoid complex cross-domain token synchronization. In production, it would be enabled via `CookieCsrfTokenRepository`. *(Documented in `requirements.md` as a future improvement).*
 - **Logout:** The backend sends an expired cookie (`maxAge=0`) to clear the browser state.
 
-## 4. Layer Responsibilities
+## 5. Layer Responsibilities
 - **Frontend (React):** Handles UI state, routing, and user experience.
 - **Vercel Proxy:** Routes `/api/*` traffic to the Render backend, making the requests same-origin for the browser.
 - **Controllers:** Handle HTTP routing, validation, and status codes. No business logic.
@@ -34,7 +68,7 @@ The application uses a **Stateful JWT** architecture to mitigate XSS vulnerabili
 - **Repositories:** Handles data access via Spring Data JPA.
 - **Database:** PostgreSQL for persistent, relational data storage.
 
-## 5. Environment Configuration
+## 6. Environment Configuration
 
 The application uses **Spring Profiles** to handle environment-specific cookie settings:
 
