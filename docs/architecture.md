@@ -6,31 +6,33 @@ This project utilizes a **Modular Monolith** architecture. A single Spring Boot 
 This was chosen over microservices to reduce network latency, simplify local development, and avoid distributed transaction complexity for a project of this scope.
 
 ## 2. Context / Container Diagram
+## 2. Context / Container Diagram
+
 ```mermaid
 flowchart TD
     subgraph Client Tier
         Browser[Web Browser]
-        ReactApp[React Frontend\n(Vercel)]
+        ReactApp["React Frontend<br/>Vercel"]
     end
 
     subgraph Edge Tier
-        VercelProxy[Vercel Reverse Proxy\n/vercel.json]
+        VercelProxy["Vercel Reverse Proxy<br/>vercel.json"]
     end
 
     subgraph Backend Tier
-        SpringApp[Spring Boot Backend\n(Docker on Render)]
-        SecurityFilter[Spring Security\nJWT + CORS]
+        SpringApp["Spring Boot Backend<br/>Docker on Render"]
+        SecurityFilter["Spring Security<br/>JWT + CORS"]
         Controllers[Controllers]
-        Services[Service Layer\nBusiness Logic]
-        Repos[Repositories\nSpring Data JPA]
+        Services["Service Layer<br/>Business Logic"]
+        Repos["Repositories<br/>Spring Data JPA"]
     end
 
     subgraph Data Tier
-        DB[(PostgreSQL Database\nRender)]
+        DB[("PostgreSQL Database<br/>Render")]
     end
 
     Browser -->|Interacts with| ReactApp
-    ReactApp -->|HTTPS API Call\n/api/requests| VercelProxy
+    ReactApp -->|HTTPS API Call| VercelProxy
     VercelProxy -->|Forwards Request| SpringApp
     SpringApp -->|Passes through| SecurityFilter
     SecurityFilter -->|Validated Request| Controllers

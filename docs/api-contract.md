@@ -2,7 +2,7 @@
 
 All endpoints are prefixed with `/api`. The API uses **JSON** for request and response payloads.
 
-## 🔐 Authentication & Authorization
+##  Authentication & Authorization
 - **Public Endpoints:** `/api/auth/**` (No token required).
 - **User Endpoints:** Require a valid JWT cookie with the `USER` or `ADMIN` role.
 - **Admin Endpoints:** Require a valid JWT cookie with the `ADMIN` role only.
