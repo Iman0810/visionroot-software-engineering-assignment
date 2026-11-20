@@ -7,7 +7,7 @@ Users within VisionRoot need a centralized way to submit internal service reques
 
 ### MVP User Stories
 **US-01: As a User, I want to register and log in securely.**
-- **AC:** Passwords are hashed with BCrypt. Public registration forces the `USER` role. Login returns a valid JWT.
+- **AC:** Passwords are hashed with BCrypt. Public registration forces the `USER` role. Login returns a valid JWT via an HttpOnly Cookie.
 
 **US-02: As a User, I want to create a service request.**
 - **AC:** User can provide Title, Description, Category, and Priority. The request defaults to `PENDING` status.
@@ -22,35 +22,35 @@ Users within VisionRoot need a centralized way to submit internal service reques
 - **AC:** Admin can transition `PENDING` -> `IN_PROGRESS` -> `RESOLVED`. Invalid transitions must be rejected by the backend.
 
 **US-06: As an Admin, I want to manage user roles.**
-- **AC:** Admin can promote a `USER` to `ADMIN` or demote them.
+- **AC:** Admin can promote a `USER` to `ADMIN` or demote them. Self-demotion is prevented to avoid locking the admin out.
 
 ## 3. Out of Scope (Future Improvements)
 - Email notifications (currently using in-app notifications).
 - File attachments.
 - Real-time WebSocket updates.
+- Comprehensive End-to-End (E2E) testing with Playwright/Cypress.
 
-## 4. Non-Functional Requirements & Future Security Improvements
+## 4. Non-Functional Requirements & Security Architecture
 
-While the current MVP uses a stateless JWT architecture stored in `localStorage` for simplicity of demonstration, the following security enhancement has been identified for the production roadmap.
+### NFR-01: Stateful HttpOnly Cookies (Implemented)
+- **Status:**  Completed
+- **Implementation:** The backend generates a JWT and returns it via a `Secure, HttpOnly` cookie. The frontend no longer stores the token in `localStorage`.
+- **Benefits:** `HttpOnly` prevents JavaScript from reading the token, mitigating XSS token theft. 
+- **Session Policy:** The backend uses `SessionCreationPolicy.STATELESS` (no `JSESSIONID` is created). The cookie itself is the session.
+- **Logout:** The backend sends an expired cookie (`maxAge=0`) to clear the browser state.
 
-### NFR-01: Transition from Stateless JWT to Stateful Sessions (HttpOnly Cookies)
+### NFR-02: CSRF Protection (Implementation Trade-off)
+- **Status:**  Disabled for Live Demo
+- **Context:**  migrated to Stateful HttpOnly Cookies. In a traditional same-origin architecture, CSRF protection would be enabled. However, because the frontend (Vercel) and backend (Render) are on different domains, cross-domain CSRF token synchronization introduced significant complexity.
+- **Decision:** For the live demo, CSRF is disabled on the backend (`.csrf(csrf -> csrf.disable())`). The `SameSite=Lax` cookie policy via the Vercel Reverse Proxy provides baseline protection against cross-site requests.
+- **Production Roadmap:** Re-enable CSRF using `CookieCsrfTokenRepository` and a custom `CsrfTokenRequestHandler`, or migrate to a same-origin architecture where the frontend and backend are served from the same domain.
 
-**Current State (MVP):**
-- The backend generates a Stateless JWT and sends it to the frontend.
-- The frontend stores the token in `localStorage`.
-- The Axios interceptor attaches the token to the `Authorization` header.
-- **Risk:** `localStorage` is accessible via JavaScript, making the application vulnerable to Cross-Site Scripting (XSS). If a malicious script is injected, it can steal the token.
+### NFR-03: Vercel Reverse Proxy (Implemented)
+- **Status:**  Completed
+- **Implementation:** The `vercel.json` file rewrites `/api/*` requests to the Render backend.
+- **Benefits:** This makes the browser think the API is on the same domain as the frontend, eliminating cross-domain cookie issues (`SameSite=None`, `Partitioned`).
 
-**Proposed State (Production):**
-- The backend will generate the JWT and send it via a **Secure, HttpOnly Cookie**.
-- The frontend will **not** store the token in JavaScript.
-- The browser will automatically attach the cookie to every request.
-- **Benefits:** 
-  - `HttpOnly` prevents JavaScript from reading the token, mitigating XSS token theft.
-  - `Secure` ensures the cookie is only sent over HTTPS.
-  - `SameSite=Strict` mitigates Cross-Site Request Forgery (CSRF) attacks.
-
-**Required Implementation Changes:**
-1.  **Backend (`AuthenticationController`):** Update the login endpoint to return a `ResponseEntity` with a `Set-Cookie` header instead of a JSON body containing the token.
-2.  **Backend (`SecurityConfiguration`):** Enable CSRF protection (since cookies are sent automatically).
-3.  **Frontend (`axiosClient.ts`):** Remove the token from `localStorage` and add `withCredentials: true` to the Axios configuration to ensure cookies are sent.
+### NFR-04: Known Limitation - Duplicate Requests
+- **Status:**  Known Edge Case
+- **Context:** The Axios retry interceptor may occasionally cause a duplicate record to be saved if the first request triggers a CSRF token refresh.
+- **Production Roadmap:** Implement idempotency keys ( a unique `X-Request-Id` header) to prevent duplicate submissions.
